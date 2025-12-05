@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Congratulations Popup</title>
+  <style>
+    :root {
+      --bg: #0a0f1f;
+      --card: #0f1630;
+      --primary: #00e5ff;
+      --accent: #ff007a;
+      --text: #e9f1ff;
+      --success: #21d07a;
+      --glow-1: 0 0 12px rgba(0,229,255,0.5), 0 0 30px rgba(0,229,255,0.3);
+      --glow-2: 0 0 14px rgba(255,0,122,0.5), 0 0 34px rgba(255,0,122,0.3);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 600px at 20% 10%, #0b1430 0%, var(--bg) 60%) no-repeat,
+                  radial-gradient(1200px 600px at 80% 90%, #08112a 0%, var(--bg) 60%) no-repeat,
+                  var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .grid {
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(transparent 94%, rgba(0,229,255,0.06) 96%),
+        linear-gradient(90deg, transparent 94%, rgba(255,0,122,0.06) 96%);
+      background-size: 22px 22px, 22px 22px;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .stage {
+      position: fixed; inset: 0; display: grid; place-items: center; padding: 24px;
+    }
+
+    .popup {
+      width: min(560px, 92vw);
+      background: linear-gradient(180deg, rgba(20,28,60,0.9), rgba(14,20,44,0.92));
+      border: 1px solid rgba(0,229,255,0.25);
+      border-radius: 18px;
+      padding: 28px 26px 24px;
+      box-shadow: var(--glow-1);
+      position: relative;
+      overflow: hidden;
+      transform: translateY(24px) scale(0.98);
+      opacity: 0;
+      animation: popIn 560ms cubic-bezier(.22,1,.36,1) forwards 260ms;
+      backdrop-filter: blur(6px);
+    }
+
+    .popup::before,
+    .popup::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 22px;
+      pointer-events: none;
+    }
+    .popup::before {
+      border: 1px solid rgba(255,0,122,0.25);
+      box-shadow: var(--glow-2);
+    }
+    .popup::after {
+      background: radial-gradient(420px 120px at 50% -10%, rgba(0,229,255,0.08), transparent 60%),
+                  radial-gradient(320px 120px at 50% 110%, rgba(255,0,122,0.08), transparent 60%);
+      mix-blend-mode: screen;
+    }
+
+    .head {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
+    }
+    .badge {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: radial-gradient(circle at 30% 30%, rgba(0,229,255,0.25), transparent 60%),
+                  linear-gradient(135deg, rgba(0,229,255,0.15), rgba(255,0,122,0.15));
+      border: 1px solid rgba(0,229,255,0.35);
+      display: grid; place-items: center;
+      box-shadow: var(--glow-1);
+      position: relative;
+      overflow: hidden;
+    }
+    .badge svg { width: 28px; height: 28px; filter: drop-shadow(0 0 8px rgba(33,208,122,0.6)); }
+    .pulse {
+      position: absolute; inset: 0; border-radius: 14px;
+      box-shadow: 0 0 0 0 rgba(33,208,122,0.9);
+      animation: pulse 1600ms ease-out infinite;
+    }
+
+    .title {
+      font-size: 26px; font-weight: 800;
+      background: linear-gradient(90deg, #aaf7ff, #fff, #ffb3d0);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 0 18px rgba(0,229,255,0.35);
+    }
+    .subtitle {
+      font-size: 14px; color: #cde6ff; opacity: 0.9; margin-top: 2px;
+    }
+
+    .msg {
+      margin: 14px 0 18px;
+      font-size: 15px; line-height: 1.6; color: #e5f5ff;
+    }
+
+    @keyframes popIn {
+      0%   { transform: translateY(24px) scale(0.96); opacity: 0; }
+      40%  { transform: translateY(-6px) scale(1.02); opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(33,208,122,0.8); }
+      70%  { box-shadow: 0 0 0 20px rgba(33,208,122,0); }
+      100% { box-shadow: 0 0 0 0 rgba(33,208,122,0); }
+    }
+
+    @media (max-width: 420px) {
+      .title { font-size: 22px; }
+      .subtitle { font-size: 13px; }
+      .msg { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="stage">
+    <div class="popup">
+      <div class="head">
+        <div class="badge">
+          <div class="pulse"></div>
+          <svg viewBox="0 0 24 24">
+            <path d="M9.5 16.2l-3.7-3.7a1.2 1.2 0 10-1.7 1.7l4.6 4.6a1.2 1.2 0 001.7 0l9.9-9.9a1.2 1.2 0 10-1.7-1.7l-9.1 9.1z" fill="#21d07a"/>
+          </svg>
+        </div>
+        <div>
+          <div class="title">Congratulations!</div>
+          <div class="subtitle">Your account has been created successfully.</div>
+        </div>
+      </div>
+      <div class="msg">
+        <strong>Now login to your app.</strong>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

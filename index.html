@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA // SYSTEM ACCESS</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --panel-bg: #101015;
+            --red: #ff3333;
+            --blue: #3388ff;
+            --text: #ffffff;
+            --glow-color: var(--red); /* Default glow color */
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', monospace; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: background-color 0.5s;
+        }
+
+        /* --- Advanced Background Elements --- */
+        /* Animated Star Field */
+        .star-field {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: transparent; z-index: -3;
+            animation: moveStars 100s linear infinite;
+            background-image: repeating-radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8) 1px, transparent 1px, transparent 200px);
+            background-size: 2000px 2000px;
+        }
+        @keyframes moveStars { from { background-position: 0 0; } to { background-position: -10000px -10000px; } }
+
+        /* Holographic Grid Overlay */
+        .grid-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(0deg, transparent 95%, rgba(255,255,255,0.05) 100%),
+                              linear-gradient(90deg, transparent 95%, rgba(255,255,255,0.05) 100%);
+            background-size: 50px 50px; z-index: -2; opacity: 0.8;
+        }
+        
+        /* Dynamic Spinning Shape (The "Taqra" Element) */
+        .dynamic-shape-container {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: center; z-index: -1; overflow: hidden;
+        }
+
+        .dynamic-shape {
+            width: 400px; height: 400px;
+            background: linear-gradient(45deg, var(--glow-color) 0%, transparent 60%, var(--glow-color) 100%);
+            opacity: 0.15; filter: blur(80px);
+            animation: spin 30s linear infinite, colorPulse 8s infinite alternate;
+            transition: background 1s ease; will-change: transform;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg) scale(1); } 100% { transform: rotate(360deg) scale(1); } }
+        @keyframes colorPulse { 0% { opacity: 0.15; } 100% { opacity: 0.3; } }
+        
+        /* Ambient Glow */
+        .glow-bg {
+            position: fixed; width: 100vw; height: 100vh;
+            background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
+            opacity: 0.1; transition: background 1s ease; z-index: -1;
+            animation: pulse 10s infinite alternate; will-change: transform;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+
+        /* 3D Scene */
+        .scene {
+            width: 360px; height: 500px;
+            perspective: 1200px;
+        }
+        .card {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.7, -0.4, 0.4, 1.4);
+        }
+        .card.flipped { transform: rotateY(180deg); }
+
+        /* Panels */
+        .panel {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        .panel.back { transform: rotateY(180deg); }
+
+        h2 { text-align: center; margin-bottom: 30px; letter-spacing: 3px; text-shadow: 0 0 10px currentColor; }
+        .h-login { color: var(--red); }
+        .h-register { color: var(--blue); }
+
+        input, textarea {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            outline: none;
+            transition: 0.3s;
+            width: 100%;
+        }
+        textarea { resize: none; height: 100px; }
+
+        button {
+            padding: 15px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+        .btn-login { background: var(--red); color: #000; box-shadow: 0 0 15px var(--red); }
+        .btn-register { background: var(--blue); color: #000; box-shadow: 0 0 15px var(--blue); }
+        .btn-submit { background: #33ffaa; color: #000; }
+        .btn-cancel { background: #333; color: #fff; margin-left: 10px; }
+        button:hover { filter: brightness(1.2); transform: scale(1.02); }
+
+        .link { text-align: center; margin-top: 20px; font-size: 0.8em; color: #888; }
+        .link span { color: #fff; cursor: pointer; text-decoration: underline; }
+        
+        /* Remember Me Checkbox */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        .remember-me input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            cursor: pointer;
+            border-radius: 2px;
+            accent-color: var(--red);
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+
+        /* --- Notification Stack --- */
+        #notif-stack {
+            position: fixed; bottom: 20px; right: 20px;
+            display: flex; flex-direction: column-reverse;
+            gap: 10px; z-index: 999;
+        }
+        .notif {
+            background: #111; color: #fff;
+            padding: 15px; width: 300px;
+            border-left: 5px solid;
+            display: flex; justify-content: space-between; align-items: center;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .notif.error { border-color: var(--red); }
+        .notif.success { border-color: var(--blue); }
+        .close-btn { cursor: pointer; opacity: 0.7; }
+        .close-btn:hover { opacity: 1; }
+
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes slideOut { to { transform: translateX(100%); opacity: 0; } }
+
+        /* --- Modal and Special States --- */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--panel-bg);
+            border: 2px solid var(--red);
+            border-radius: 12px;
+            padding: 30px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 0 40px rgba(255, 51, 51, 0.5);
+            animation: scaleIn 0.3s ease;
+        }
+        
+        .deleted-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(100, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 1000;
+            color: var(--red);
+        }
+        .deleted-screen h1 { font-size: 3em; margin-bottom: 20px; text-shadow: 0 0 15px var(--red); }
+        .deleted-screen p { font-size: 1.2em; margin-bottom: 40px; }
+
+        /* Message Modal (New) */
+        #message-modal .modal-content {
+            border: 2px solid var(--blue);
+            box-shadow: 0 0 40px rgba(51, 136, 255, 0.5);
+            text-align: center;
+        }
+        #message-content {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            white-space: pre-wrap; /* Preserve newlines */
+            text-align: left;
+        }
+        #message-modal h2 { color: var(--blue); margin-bottom: 15px; }
+        .message-actions {
+            display: flex; justify-content: center; gap: 15px;
+        }
+        .btn-open-link { background: var(--blue); color: black; }
+        .btn-acknowledge { background: #33ffaa; color: black; }
+
+
+        /* Shared for Modals/Special Screens */
+        .modal.active, .deleted-screen.active { display: flex; }
+    </style>
+</head>
+<body>
+
+    <!-- Background Elements -->
+    <div class="star-field" id="star-field"></div>
+    <div class="grid-overlay" id="grid-overlay"></div>
+    <div class="dynamic-shape-container">
+        <div class="dynamic-shape" id="dynamic-shape"></div>
+    </div>
+    <div class="glow-bg" id="glow"></div>
+
+    <div class="scene" id="main-content">
+        <div class="card" id="card">
+            <!-- Login Panel (Front) -->
+            <div class="panel">
+                <h2 class="h-login">AGENT LOGIN</h2>
+                <input type="email" id="l-email" placeholder="EMAIL ADDRESS">
+                <input type="password" id="l-pass" placeholder="PASSWORD">
+                
+                <div class="remember-me">
+                    <label for="remember-id" class="checkbox-container">
+                        <input type="checkbox" id="remember-id">
+                        Remember My ID
+                    </label>
+                </div>
+                
+                <button class="btn-login" id="btn-login">ENTER SYSTEM</button>
+                <div class="link">NEW AGENT? <span id="to-reg">ACTIVATE ID</span></div>
+            </div>
+            <!-- Register Panel (Back) -->
+            <div class="panel back">
+                <h2 class="h-register">NEW ID REGISTRY</h2>
+                <input type="text" id="r-user" placeholder="USERNAME">
+                <input type="email" id="r-email" placeholder="EMAIL ADDRESS">
+                <input type="password" id="r-pass" placeholder="NEW PASSWORD">
+                <input type="password" id="r-conf" placeholder="CONFIRM PASSWORD">
+                <button class="btn-register" id="btn-reg">CREATE ID</button>
+                <div class="link">HAS ID? <span id="to-log">ACCESS LOGIN</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Banned User Appeal Modal (Updated with custom email) -->
+    <div id="appeal-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color:var(--red); text-align: left; margin-bottom: 20px;">ACCESS DENIED: ACCOUNT BANNED</h2>
+            <p style="color:#aaa; margin-bottom: 15px; font-size: 0.9em;">Your access has been revoked. For review, contact support at:</p>
+            <p style="font-weight: bold; color: var(--red); font-size: 1.1em; margin-bottom: 20px;">hassanalitariq2345@gmail.com</p>
+            
+            <p style="color:#aaa; margin-bottom: 15px; font-size: 0.9em;">You can submit an appeal message below:</p>
+            <input type="email" id="a-email" placeholder="Your Registered Email" disabled style="background:#222;">
+            <textarea id="a-message" placeholder="Type your appeal message here..."></textarea>
+            <div style="display:flex; justify-content: flex-end; margin-top: 20px;">
+                <button class="btn-submit" id="btn-submit-appeal">SUBMIT APPEAL</button>
+                <button class="btn-cancel" id="btn-close-appeal">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Message Modal (New) -->
+    <div id="message-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="message-modal-title"><i class="fas fa-exclamation-triangle"></i> CRITICAL SYSTEM NOTIFICATION</h2>
+            <p id="message-content" style="text-align: left;"></p>
+            <div class="message-actions">
+                <button class="action-btn btn-open-link" id="btn-open-link" style="display:none;">
+                    <i class="fas fa-external-link-alt"></i> OPEN LINK
+                </button>
+                <button class="action-btn btn-acknowledge" id="btn-acknowledge">
+                    <i class="fas fa-check"></i> ACKNOWLEDGE AND PROCEED
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deleted Account Screen -->
+    <div id="deleted-screen" class="deleted-screen">
+        <i class="fas fa-skull-crossbones" style="font-size: 6em; margin-bottom: 30px;"></i>
+        <h1>ACCESS TERMINATED</h1>
+        <p>This account has been **PERMANENTLY DELETED** from the system database.</p>
+        <button class="btn-cancel" id="btn-close-deleted" style="padding: 15px 40px; border-color: var(--red); box-shadow: 0 0 15px rgba(255,255,255,0.2);">RETURN TO LOGIN</button>
+    </div>
+
+    <div id="notif-stack"></div>
+
+    <script type="module">
+        // --- Firebase Imports ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getDatabase, ref, set, get, child, push, update, remove } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+        
+        // --- Configuration (Provided by User) ---
+        // NOTE: Aapki Firebase Config yahan honi chahiye. Main default values use kar raha hoon.
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3thLr-wW00EtqdeXjrFBx-LDtV3sDH98",
+            authDomain: "login-agent-5318e.firebaseapp.com",
+            databaseURL: "https://login-agent-5318e-default-rtdb.firebaseio.com",
+            projectId: "login-agent-5318e",
+            storageBucket: "login-agent-5318e.firebasestorage.app",
+            messagingSenderId: "875739061726",
+            appId: "1:875739061726:web:a29795113f6034ab86d14f",
+            measurementId: "G-YXXECKBB7C"
+        };
+        
+        // --- Global Variables ---
+        let db;
+        let isReady = false; 
+        const AGENTS_PATH = `public/data/agents`; 
+        let currentAgentKey = null; // Key of the currently logged-in user
+        
+        // --- UI References ---
+        const card = document.getElementById('card');
+        const notifStack = document.getElementById('notif-stack');
+        const appealModal = document.getElementById('appeal-modal');
+        const messageModal = document.getElementById('message-modal'); // New Message Modal
+        const messageContentEl = document.getElementById('message-content'); // Message Text
+        const btnOpenLink = document.getElementById('btn-open-link'); // Message Link Button
+        const deletedScreen = document.getElementById('deleted-screen');
+        const mainContent = document.getElementById('main-content');
+        const loginEmailInput = document.getElementById('l-email');
+        const rememberMeCheckbox = document.getElementById('remember-id');
+        
+        // Custom Email for Banned Account Contact
+        const CONTACT_EMAIL = "hassanalitariq2345@gmail.com";
+
+        // Helper function to validate email format
+        function isValidEmail(email) {
+            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        // --- Notification Function (English Output) ---
+        function notify(msg, success = false, duration = 2500) {
+            const el = document.createElement('div');
+            el.className = `notif ${success ? 'success' : 'error'}`;
+            el.innerHTML = `<span>${msg}</span><i class="fas fa-times close-btn"></i>`;
+            notifStack.appendChild(el);
+            
+            const close = () => {
+                el.style.animation = 'slideOut 0.3s forwards';
+                setTimeout(() => el.remove(), 300);
+            };
+            el.querySelector('.close-btn').onclick = close;
+            
+            if (duration > 0) {
+                setTimeout(close, duration); 
+            }
+        }
+
+        function removeLastNotif() {
+            if (notifStack.lastChild) {
+                notifStack.lastChild.remove();
+            }
+        }
+
+        // --- Initialization ---
+        function init() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getDatabase(app);
+                isReady = true; 
+                notify("SYSTEM ONLINE. Database Connection Established.", true);
+                
+                // Load remembered email and set checkbox (FIXED)
+                const savedEmail = localStorage.getItem('rememberedEmail');
+                const isRemembered = localStorage.getItem('isRemembered') === 'true';
+
+                if (savedEmail && isRemembered) {
+                    loginEmailInput.value = savedEmail;
+                    rememberMeCheckbox.checked = true;
+                }
+                
+                // Setup Star Field background (function from previous code)
+                setupStarField();
+
+            } catch(e) { 
+                console.error("Firebase Init Error:", e);
+                notify("ERROR: Initialization Failed. Check Network/Config.", false, 0); 
+            }
+        }
+        
+        function setupStarField() {
+            // Function to dynamically set up the star field for background
+            const starField = document.getElementById('star-field');
+            if (!starField) return; // Guard clause
+            
+            // Using a simple background for animation efficiency
+            const starColor = 'rgba(255, 255, 255, 0.8)';
+            const starStyle = `repeating-radial-gradient(circle at 0 0, ${starColor}, ${starColor} 1px, transparent 1px, transparent 200px)`;
+
+            starField.style.backgroundImage = starStyle;
+            starField.style.backgroundSize = '2000px 2000px'; 
+        }
+
+
+        // --- REMEMBER ME LOGIC (FIXED) ---
+        function handleRememberMe(email) {
+            if (rememberMeCheckbox.checked) {
+                localStorage.setItem('rememberedEmail', email);
+                localStorage.setItem('isRemembered', 'true');
+            } else {
+                localStorage.removeItem('rememberedEmail');
+                localStorage.setItem('isRemembered', 'false');
+            }
+        }
+
+        // --- REGISTER LOGIC (Same as previous, omitted for brevity but logic remains) ---
+        async function doRegister() {
+            if(!isReady) return notify("System is not ready. Please wait for connection.", false);
+            
+            const user = document.getElementById('r-user').value.trim();
+            const email = document.getElementById('r-email').value.trim();
+            const pass = document.getElementById('r-pass').value.trim();
+            const conf = document.getElementById('r-conf').value.trim();
+
+            if(!user || !email || !pass || !conf) return notify("Input Error: All fields must be filled.", false);
+            if(!isValidEmail(email)) return notify("Input Error: Invalid email format.", false);
+            if(pass !== conf) return notify("Security Error: Passwords do not match.", false);
+            if(pass.length < 6) return notify("Security Error: Password too short (Min 6 chars).", false);
+
+            notify("PROCESSING: Agent registration in progress...", true, 0);
+
+            try {
+                const snap = await get(child(ref(db), AGENTS_PATH));
+                let exists = false;
+                
+                if(snap.exists()) {
+                    snap.forEach(c => { 
+                        if(c.val().email.toLowerCase() === email.toLowerCase()) {
+                            exists = true; 
+                        }
+                    });
+                }
+                
+                removeLastNotif();
+
+                if(exists) {
+                    return notify("REGISTRY FAILED: Email already registered.", false);
+                }
+
+                await push(ref(db, AGENTS_PATH), {
+                    username: user, 
+                    email: email.toLowerCase(), 
+                    password: pass,
+                    status: 'active',
+                    lastSeen: Date.now() 
+                });
+                
+                notify(`SUCCESS: Agent ${user} ID activated!`, true);
+                setTimeout(() => toggleView(false), 1500); 
+
+            } catch(e) {
+                removeLastNotif();
+                notify("DATABASE ERROR: Registration failed. See console.", false);
+            }
+        }
+
+
+        // --- LOGIN LOGIC (Updated for Message and Ban Status) ---
+        async function doLogin() {
+            if(!isReady) return notify("System is not ready. Please wait for connection.", false);
+            
+            const email = loginEmailInput.value.trim();
+            const pass = document.getElementById('l-pass').value.trim();
+
+            if(!email || !pass) return notify("Input Error: Email and Password are required.", false);
+            if(!isValidEmail(email)) return notify("Input Error: Invalid email format.", false);
+
+            notify("VERIFYING: Credentials check in progress...", true, 0);
+
+            try {
+                const snap = await get(child(ref(db), AGENTS_PATH));
+
+                let found = null;
+                let userKey = null;
+
+                if(snap.exists()) {
+                    snap.forEach(c => {
+                        const d = c.val();
+                        if(d.email.toLowerCase() === email.toLowerCase() && d.password === pass) {
+                            found = d;
+                            userKey = c.key;
+                        }
+                    });
+                }
+                
+                removeLastNotif();
+
+                if(found) {
+                    currentAgentKey = userKey;
+                    
+                    // Handle Remember Me
+                    handleRememberMe(email);
+                    
+                    // --- Check Account Status ---
+                    if (found.status === 'banned') {
+                        document.getElementById('a-email').value = email; // Pre-fill appeal email
+                        return openAppealModal();
+                    }
+                    if (found.status === 'deleted') {
+                        return openDeletedScreen();
+                    }
+
+                    // --- SUCCESSFUL LOGIN & MESSAGE CHECK ---
+                    notify(`ACCESS GRANTED. Welcome, ${found.username}.`, true);
+                    
+                    // Update Last Online Status
+                    await update(child(ref(db), `${AGENTS_PATH}/${currentAgentKey}`), {
+                        online: true,
+                        lastSeen: Date.now()
+                    });
+                    
+                    if (found.message && found.message.text) {
+                        // If message exists, show modal and stop redirection
+                        showMessageModal(found.message.text, found.message.link);
+                    } else {
+                        // No message, proceed with redirection
+                        setTimeout(redirectAfterLogin, 2000);
+                    }
+                    
+                } else {
+                    notify("ACCESS DENIED: Account Not Found or Invalid Password.", false);
+                }
+            } catch(e) {
+                console.error("Login Error:", e);
+                removeLastNotif();
+                notify("DATABASE ERROR: Login failed. See console.", false);
+            }
+        }
+        
+        function redirectAfterLogin() {
+            notify("REDIRECTING: Accessing Main System (main.html)...", true);
+             window.location.href="congratulation.html"
+        }
+
+
+        // --- UI / MODAL LOGIC ---
+
+        function toggleView(toReg) {
+            if(toReg) {
+                card.classList.add('flipped');
+                document.body.style.setProperty('--glow-color', 'var(--blue)');
+            } else {
+                card.classList.remove('flipped');
+                document.body.style.setProperty('--glow-color', 'var(--red)');
+            }
+        }
+        
+        function openAppealModal() {
+            appealModal.classList.add('active');
+            mainContent.style.display = 'none';
+        }
+
+        function closeAppealModal() {
+            appealModal.classList.remove('active');
+            mainContent.style.display = 'flex';
+        }
+
+        // New Message Modal Functions
+        function showMessageModal(messageText, messageLink) {
+            messageContentEl.textContent = messageText;
+            
+            if (messageLink && messageLink.trim() !== '') {
+                btnOpenLink.style.display = 'inline-block';
+                btnOpenLink.onclick = () => {
+                    // Open link in new tab
+                    window.open(messageLink, '_blank');
+                    // Acknowledge after opening link
+                    acknowledgeMessage();
+                };
+            } else {
+                btnOpenLink.style.display = 'none';
+            }
+
+            messageModal.classList.add('active');
+            mainContent.style.display = 'none';
+        }
+        
+        // This function handles both ACKNOWLEDGE and the final step of deleting the message
+        async function acknowledgeMessage() {
+            messageModal.classList.remove('active');
+            mainContent.style.display = 'flex';
+            
+            if (currentAgentKey) {
+                try {
+                    // Delete the 'message' node from the user's database entry
+                    await remove(child(ref(db), `${AGENTS_PATH}/${currentAgentKey}/message`));
+                    notify("NOTIFICATION CLEARED: Admin message acknowledged.", true);
+                } catch(e) {
+                    console.error("Failed to delete message after acknowledge:", e);
+                    notify("WARNING: Message may not have been cleared from database.", false);
+                }
+            }
+            
+            // Proceed to redirection after message is handled
+            redirectAfterLogin();
+        }
+        
+        function openDeletedScreen() {
+            deletedScreen.classList.add('active');
+            mainContent.style.display = 'none';
+        }
+        
+        function closeDeletedScreen() {
+            deletedScreen.classList.remove('active');
+            mainContent.style.display = 'flex';
+        }
+        
+        function handleSubmitAppeal() {
+            const email = document.getElementById('a-email').value;
+            const message = document.getElementById('a-message').value.trim();
+
+            if (message.length < 20) {
+                return notify("Appeal message is too short. Be detailed.", false);
+            }
+            
+            // In a real app, this would be saved to a new RTDB path ('appeals').
+            console.log("Appeal Submitted:", { email, message });
+            notify(`APPEAL SENT: Your application has been submitted to ${CONTACT_EMAIL}.`, true);
+            
+            // Close the modal and reset fields
+            document.getElementById('a-message').value = '';
+            closeAppealModal();
+        }
+
+
+        // --- Event Listeners ---
+        document.getElementById('to-reg').onclick = () => toggleView(true);
+        document.getElementById('to-log').onclick = () => toggleView(false);
+        document.getElementById('btn-reg').onclick = doRegister;
+        document.getElementById('btn-login').onclick = doLogin;
+        
+        // Modal Listeners
+        document.getElementById('btn-close-appeal').onclick = closeAppealModal;
+        document.getElementById('btn-submit-appeal').onclick = handleSubmitAppeal;
+        document.getElementById('btn-close-deleted').onclick = closeDeletedScreen;
+        document.getElementById('btn-acknowledge').onclick = acknowledgeMessage; // New Acknowledge button
+
+        // App ko shuru karo
+        init();
+    </script>
+</body>
+</html>
